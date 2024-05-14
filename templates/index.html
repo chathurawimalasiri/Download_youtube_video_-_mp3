@@ -1,46 +1,151 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>YouTube Downloader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            color: #007bff;
+        }
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #progress-container {
+            margin-top: 20px;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 25px;
+            background-color: #28a745;
+            border-radius: 4px;
+            text-align: center;
+            color: white;
+            line-height: 25px;
+        }
+    </style>
 </head>
 <body>
-    <h1>YouTube Downloader</h1>
-    <form method="post">
-        <label for="url">YouTube URL:</label>
-        <input type="text" id="url" name="url" required><br><br>
-        <label for="mode">Download Mode:</label>
-        <select id="mode" name="mode" required>
-            <option value="audio">Audio</option>
-            <option value="video">Video</option>
-        </select><br><br>
-        <div id="audio-options" style="display:none;">
-            <label for="bitrate">Bitrate:</label>
-            <select id="bitrate" name="bitrate">
-                <option value="128k">128k</option>
-                <option value="192k">192k</option>
-                <option value="320k">320k</option>
-            </select><br><br>
+    <div>
+        <h1>YouTube Downloader</h1>
+        <form id="download-form">
+            <label for="url">YouTube URL:</label>
+            <input type="text" id="url" name="url" required>
+            <label for="mode">Download Mode:</label>
+            <select id="mode" name="mode" onchange="toggleOptions()">
+                <option value="audio">Audio</option>
+                <option value="video">Video</option>
+            </select>
+            <div id="audio-options">
+                <label for="audio_quality">Audio Quality:</label>
+                <select id="audio_quality" name="audio_quality">
+                    <option value="128kbps">128 kbps</option>
+                    <option value="192kbps">192 kbps</option>
+                    <option value="256kbps">256 kbps</option>
+                    <option value="320kbps">320 kbps</option>
+                </select>
+            </div>
+            <div id="video-options" style="display: none;">
+                <label for="resolution">Video Resolution:</label>
+                <select id="resolution" name="resolution">
+                    <option value="144p">144p</option>
+                    <option value="240p">240p</option>
+                    <option value="360p">360p</option>
+                    <option value="480p">480p</option>
+                    <option value="720p">720p</option>
+                    <option value="1080p">1080p</option>
+                </select>
+            </div>
+            <button type="submit">Download</button>
+        </form>
+        <div id="progress-container">
+            <div id="progress-bar"></div>
         </div>
-        <div id="video-options" style="display:none;">
-            <label for="resolution">Resolution:</label>
-            <select id="resolution" name="resolution">
-                <option value="720p">720p</option>
-                <option value="1080p">1080p</option>
-            </select><br><br>
-        </div>
-        <button type="submit">Download</button>
-    </form>
+    </div>
 
     <script>
-        document.getElementById('mode').addEventListener('change', function() {
-            var mode = this.value;
+        function toggleOptions() {
+            var mode = document.getElementById('mode').value;
+            var audioOptions = document.getElementById('audio-options');
+            var videoOptions = document.getElementById('video-options');
             if (mode == 'audio') {
-                document.getElementById('audio-options').style.display = 'block';
-                document.getElementById('video-options').style.display = 'none';
-            } else if (mode == 'video') {
-                document.getElementById('audio-options').style.display = 'none';
-                document.getElementById('video-options').style.display = 'block';
+                audioOptions.style.display = 'block';
+                videoOptions.style.display = 'none';
+            } else {
+                audioOptions.style.display = 'none';
+                videoOptions.style.display = 'block';
             }
+        }
+
+        document.getElementById('download-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/download', true);
+
+            xhr.upload.onprogress = function(event) {
+                if (event.lengthComputable) {
+                    var percentComplete = (event.loaded / event.total) * 100;
+                    var progressBar = document.getElementById('progress-bar');
+                    progressBar.style.width = percentComplete + '%';
+                    progressBar.innerHTML = Math.round(percentComplete) + '%';
+                }
+            };
+
+            xhr.onloadstart = function() {
+                document.getElementById('progress-container').style.display = 'block';
+            };
+
+            xhr.onloadend = function() {
+                if (xhr.status == 200) {
+                    var link = document.createElement('a');
+                    link.href = URL.createObjectURL(xhr.response);
+                    link.download = 'output';
+                    link.click();
+                } else {
+                    alert('Download failed!');
+                }
+                document.getElementById('progress-container').style.display = 'none';
+                document.getElementById('progress-bar').style.width = '0%';
+                document.getElementById('progress-bar').innerHTML = '';
+            };
+
+            xhr.responseType = 'blob';
+            xhr.send(formData);
         });
     </script>
 </body>
