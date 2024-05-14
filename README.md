@@ -1,5 +1,3 @@
-# Download_youtube_video_&_mp3
-
 # YouTube Downloader Web Application
 
 This project is a Flask-based web application that allows users to download YouTube videos or audio files with customizable quality options. Users can paste a YouTube link, select either video or audio download mode, and choose the desired resolution or bitrate. The application is designed to run locally and provides an easy-to-use web interface for downloading content from YouTube.
