@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>YouTube Downloader</title>
+</head>
+<body>
+    <h1>YouTube Downloader</h1>
+    <form method="post">
+        <label for="url">YouTube URL:</label>
+        <input type="text" id="url" name="url" required><br><br>
+        <label for="mode">Download Mode:</label>
+        <select id="mode" name="mode" required>
+            <option value="audio">Audio</option>
+            <option value="video">Video</option>
+        </select><br><br>
+        <div id="audio-options" style="display:none;">
+            <label for="bitrate">Bitrate:</label>
+            <select id="bitrate" name="bitrate">
+                <option value="128k">128k</option>
+                <option value="192k">192k</option>
+                <option value="320k">320k</option>
+            </select><br><br>
+        </div>
+        <div id="video-options" style="display:none;">
+            <label for="resolution">Resolution:</label>
+            <select id="resolution" name="resolution">
+                <option value="720p">720p</option>
+                <option value="1080p">1080p</option>
+            </select><br><br>
+        </div>
+        <button type="submit">Download</button>
+    </form>
+
+    <script>
+        document.getElementById('mode').addEventListener('change', function() {
+            var mode = this.value;
+            if (mode == 'audio') {
+                document.getElementById('audio-options').style.display = 'block';
+                document.getElementById('video-options').style.display = 'none';
+            } else if (mode == 'video') {
+                document.getElementById('audio-options').style.display = 'none';
+                document.getElementById('video-options').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
